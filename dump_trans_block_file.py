@@ -10,12 +10,15 @@ import sys
 filename = sys.argv[1]
 
 basename = os.path.basename(filename)
-output_file = os.path.join("transactions", basename+ ".gz")
+temp_file = os.path.join("transactions", basename + ".gz_tmp")
+output_file = os.path.join("transactions", basename + ".gz")
+error_file = os.path.join("transactions", "error.dat")
 
 if os.path.exists(output_file):
     sys.exit(2)
 
-fp_out = gzip.open(output_file, "wt")
+fp_out = gzip.open(temp_file, "wt")
+fp_err = open(error_file, "at")
 
 blockchain = Blockchain_file(filename)
 
@@ -44,6 +47,12 @@ for block in blockchain.get_unordered_blocks():
                     print(txid, timestamp, tx.hash, "output", address.address, output.value, file=fp_out)
                     line_count += 1
         except Exception as e:
-            pprint(e.__dict__, file=sys.stderr)
+            print(output_file, file=fp_err)
+            pprint(e.__dict__, stream=fp_err)
+            print(txid, file=fp_err)
+
 
 fp_out.close()
+fp_err.close()
+
+os.rename(temp_file, output_file)
