@@ -4,18 +4,24 @@ import gzip
 import sys
 import os
 
+from os import listdir
+from os.path import isfile, join
+
 from heapq import *
 
 files = []
 
-fp_out = gzip.open("data_sorted.gz", "wt")
+onlyfiles = [join(sys.argv[1], f) for f in listdir(sys.argv[1]) if isfile(join(sys.argv[1], f)) and f.startswith("blk0")]
+fp_out = gzip.open(os.path.join(sys.argv[1], "data_sorted.s" + sys.argv[2] + ".dat.gz"), "wt")
 
-for i in range(1, len(sys.argv)):
-    fp = gzip.open(sys.argv[i], "rt")
+for i in range(1, len(onlyfiles)):
+    fp = gzip.open(onlyfiles[i], "rt")
     line = fp.readline()
     time = int(line.strip().split()[1])
 
     files.append((time, line, fp))
+
+print("Found", len(files), "block files...", file=sys.stderr)
 
 heapify(files)
 
@@ -27,7 +33,7 @@ while len(files)>0:
 
     line_count += 1
 
-    if line_count % 10000 == 0:
+    if line_count % 1000000 == 0:
         print(line_count, file=sys.stderr)
 
     print(line.strip(), file=fp_out)
@@ -36,6 +42,7 @@ while len(files)>0:
 
     if len(line) == 0:
         old_item = heappop(files)
+        fp.close()
         continue
 
     time = int(line.strip().split()[1])

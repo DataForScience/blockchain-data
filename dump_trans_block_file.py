@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import os 
-from blockchain_parser.blockchain import Blockchain, Blockchain_file
+from blockchain_parser.blockchain import Blockchain
 from pprint import pprint
 import gzip
 import calendar
@@ -19,38 +19,36 @@ if os.path.exists(output_file):
 
 fp_out = gzip.open(temp_file, "wt")
 fp_err = open(error_file, "at")
-
-blockchain = Blockchain_file(filename)
+print(basename, file=sys.stderr)
+blockchain = Blockchain(filename)
 
 txid = 0
 line_count = 0
 
 for block in blockchain.get_unordered_blocks():
     timestamp = calendar.timegm(block.header.timestamp.timetuple())
-
     for tx in block.transactions:
         try:
             txid += 1
 
             if txid % 100000 == 0:
-                print(txid, line_count, timestamp, file=sys.stderr)
+                print(basename, txid, line_count, timestamp, file=sys.stderr)
 
             for inp in tx.inputs:
                 trans = inp.transaction_hash
                 out_id = inp.transaction_index
 
-                print(txid, timestamp, tx.hash, "input", trans, out_id, file=fp_out)
+                print(txid, timestamp, tx.txid, "input", trans, out_id, file=fp_out)
                 line_count += 1
 
             for no, output in enumerate(tx.outputs):
                 for address in output.addresses:
-                    print(txid, timestamp, tx.hash, "output", address.address, output.value, file=fp_out)
+                    print(txid, timestamp, tx.txid, "output", address.address, output.value, file=fp_out)
                     line_count += 1
         except Exception as e:
             print(output_file, file=fp_err)
             pprint(e.__dict__, stream=fp_err)
             print(txid, file=fp_err)
-
 
 fp_out.close()
 fp_err.close()
