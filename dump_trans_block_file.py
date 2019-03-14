@@ -43,7 +43,7 @@ for block in blockchain.get_unordered_blocks():
 
             for no, output in enumerate(tx.outputs):
                 for address in output.addresses:
-                    print(txid, timestamp, tx.txid, "output", address.address, output.value, file=fp_out)
+                    print(txid, timestamp, tx.txid, "output", address.address, output.value, no, file=fp_out)
                     line_count += 1
         except Exception as e:
             print(output_file, file=fp_err)

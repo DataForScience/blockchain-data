@@ -11,10 +11,12 @@ from heapq import *
 
 files = []
 
-onlyfiles = [join(sys.argv[1], f) for f in listdir(sys.argv[1]) if isfile(join(sys.argv[1], f)) and f.startswith("blk0")]
-fp_out = gzip.open(os.path.join(sys.argv[1], "data_sorted.s" + sys.argv[2] + ".dat.gz"), "wt")
+onlyfiles = sys.argv[2:]
 
-for i in range(1, len(onlyfiles)):
+#onlyfiles = [join(sys.argv[1], f) for f in listdir(sys.argv[1]) if isfile(join(sys.argv[1], f)) and f.startswith("blk0")]
+fp_out = gzip.open(os.path.join("sorted", "data_sorted." + sys.argv[1] + ".dat.gz"), "wt")
+
+for i in range(len(onlyfiles)):
     fp = gzip.open(onlyfiles[i], "rt")
     line = fp.readline()
     time = int(line.strip().split()[1])
